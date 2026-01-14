@@ -132,6 +132,21 @@ The California Housing Dataset contains information from the 1990 U.S. Census:
 
 This project is for educational purposes. The California Housing Dataset is publicly available through scikit-learn.
 
+## Analytics
+
+This site uses Google Analytics to track visitor demographics and usage patterns. See [ANALYTICS-SETUP.md](ANALYTICS-SETUP.md) for setup instructions and [PRIVACY-POLICY.md](PRIVACY-POLICY.md) for privacy information.
+
+### What's Tracked:
+- Visitor geographic location (city/region/country)
+- Page views and engagement
+- Device types and browsers
+- Custom events (predictions made)
+
+### What's NOT Tracked:
+- Your prediction input values stay in your browser
+- No personal information collected
+- No form data sent to servers
+
 ## Author
 
 Built with ❤️ using Python and Flask

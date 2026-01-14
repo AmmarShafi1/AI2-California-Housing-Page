@@ -1,6 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- Google Analytics 4 - Replace G-XXXXXXXXXX with your Measurement ID -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-XXXXXXXXXX", {
+        anonymize_ip: true,
+        send_page_view: true,
+      });
+
+      // Custom event tracking for predictions
+      function trackPrediction(price) {
+        if (typeof gtag !== "undefined") {
+          gtag("event", "prediction_made", {
+            event_category: "engagement",
+            event_label: "housing_price_prediction",
+            value: Math.round(price / 1000), // in thousands
+          });
+        }
+      }
+    </script>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>California Housing Price Predictor</title>
@@ -508,6 +536,15 @@
         <p>
           Built with vanilla JavaScript | Client-side Linear Regression Model |
           Hosted on GitHub Pages
+        </p>
+        <p style="font-size: 0.9em; margin-top: 10px; opacity: 0.8">
+          This site uses Google Analytics to understand visitor patterns.
+          <a
+            href="https://github.com/AmmarShafi1/AI2-California-Housing-Page/blob/main/PRIVACY-POLICY.md"
+            style="color: white; text-decoration: underline"
+            target="_blank"
+            >Privacy Policy</a
+          >
         </p>
       </footer>
     </div>

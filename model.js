@@ -198,7 +198,7 @@ async function loadAndTrain() {
 
     // Limit dataset size for security (prevent DoS)
     const maxRows = Math.min(lines.length, 25000);
-    
+
     for (let i = 1; i < maxRows; i++) {
       const values = lines[i].split(",");
       if (values.length === headers.length) {
@@ -214,8 +214,9 @@ async function loadAndTrain() {
         const medianHouseValue = parseFloat(values[8]);
 
         // Skip rows with missing or invalid values
-        if (isNaN(totalBedrooms) || isNaN(longitude) || isNaN(latitude)) continue;
-        
+        if (isNaN(totalBedrooms) || isNaN(longitude) || isNaN(latitude))
+          continue;
+
         // Basic data validation to prevent malicious data
         if (households <= 0 || totalRooms < 0 || population < 0) continue;
 
@@ -360,41 +361,46 @@ function handlePrediction(e) {
     const features = FEATURE_NAMES.map((name) => {
       const value = document.getElementById(name).value;
       const num = parseFloat(value);
-      
+
       // Check for invalid numbers
       if (isNaN(num) || !isFinite(num)) {
         throw new Error(`Invalid input for ${name}: must be a valid number`);
       }
-      
+
       // Basic range validation
-      if (num < 0 && name !== 'Longitude') {
+      if (num < 0 && name !== "Longitude") {
         throw new Error(`Invalid input for ${name}: cannot be negative`);
       }
-      
+
       return num;
     });
 
     const prediction = model.predict([features])[0];
-    
+
     // Validate prediction output
     if (isNaN(prediction) || !isFinite(prediction)) {
-      throw new Error('Model produced invalid prediction');
+      throw new Error("Model produced invalid prediction");
     }
-    
-    const predictionDollars = prediction * 100000;
 
-    document.getElementById("priceValue").textContent =
-      predictionDollars.toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
+      const predictionDollars = prediction * 100000;
 
-    const resultDiv = document.getElementById("predictionResult");
-    resultDiv.classList.remove("hidden");
-    resultDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      document.getElementById("priceValue").textContent =
+        predictionDollars.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+
+      const resultDiv = document.getElementById("predictionResult");
+      resultDiv.classList.remove("hidden");
+      resultDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      
+      // Track prediction event in analytics
+      if (typeof trackPrediction !== "undefined") {
+        trackPrediction(predictionDollars);
+      }
   } catch (error) {
-    console.error('Prediction error:', error);
-    alert('Error: ' + error.message);
+    console.error("Prediction error:", error);
+    alert("Error: " + error.message);
   }
 }
 
