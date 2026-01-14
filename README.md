@@ -4,7 +4,9 @@ A sleek web application that uses machine learning to predict California housing
 
 ## 🌐 Live Demo
 
-**[View Live Demo](https://YOUR_USERNAME.github.io/YOUR_REPO_NAME/)** _(Replace with your actual GitHub Pages URL)_
+**[View Live Demo](https://ammarshafi1.github.io/AI2-California-Housing-Page/)** 
+
+> Note: GitHub Pages will be live once you enable it in repository settings (see instructions below)
 
 ## Features
 
