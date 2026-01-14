@@ -11,22 +11,56 @@ let dataCache = {
 // Store data for visualizations
 function storeDataForViz(X_all, y_all, X_test, y_test, y_pred) {
     dataCache = { X_all, y_all, X_test, y_test, y_pred };
-    createAllCharts();
+    console.log('Data stored for visualizations:', {
+        total_samples: X_all.length,
+        test_samples: X_test.length
+    });
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', createAllCharts);
+    } else {
+        // Use setTimeout to ensure canvases are rendered
+        setTimeout(createAllCharts, 100);
+    }
 }
 
 function createAllCharts() {
-    createGeographicChart();
-    createPredictionScatter();
-    createPriceDistribution();
-    createIncomeVsPriceChart();
-    createAgeVsPriceChart();
-    createFeatureDistributions();
+    console.log('Creating all charts...');
+    
+    // Check if Chart.js is loaded
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js not loaded!');
+        return;
+    }
+    
+    // Verify data
+    if (!dataCache.X_all.length) {
+        console.error('No data available for charts');
+        return;
+    }
+    
+    try {
+        createGeographicChart();
+        createPredictionScatter();
+        createPriceDistribution();
+        createIncomeVsPriceChart();
+        createAgeVsPriceChart();
+        createFeatureDistributions();
+        console.log('All charts created successfully');
+    } catch (error) {
+        console.error('Error creating charts:', error);
+    }
 }
 
 // 1. Geographic Price Distribution (Scatter plot showing California map)
 function createGeographicChart() {
     const ctx = document.getElementById('geoChart');
-    if (!ctx) return;
+    if (!ctx) {
+        console.error('geoChart canvas not found');
+        return;
+    }
+    console.log('Creating geographic chart...');
 
     // Sample data for performance (use every 10th point)
     const sampleIndices = dataCache.X_all
