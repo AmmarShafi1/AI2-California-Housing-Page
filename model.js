@@ -196,7 +196,10 @@ async function loadAndTrain() {
     const data = [];
     const targets = [];
 
-    for (let i = 1; i < lines.length; i++) {
+    // Limit dataset size for security (prevent DoS)
+    const maxRows = Math.min(lines.length, 25000);
+    
+    for (let i = 1; i < maxRows; i++) {
       const values = lines[i].split(",");
       if (values.length === headers.length) {
         // Extract features (all except median_house_value) and scale
@@ -210,8 +213,11 @@ async function loadAndTrain() {
         const medianIncome = parseFloat(values[7]);
         const medianHouseValue = parseFloat(values[8]);
 
-        // Skip rows with missing values
-        if (isNaN(totalBedrooms)) continue;
+        // Skip rows with missing or invalid values
+        if (isNaN(totalBedrooms) || isNaN(longitude) || isNaN(latitude)) continue;
+        
+        // Basic data validation to prevent malicious data
+        if (households <= 0 || totalRooms < 0 || population < 0) continue;
 
         // Calculate derived features (matching sklearn's California housing dataset)
         const aveRooms = totalRooms / households;
@@ -261,13 +267,13 @@ async function loadAndTrain() {
     };
 
     displayResults();
-    
+
     // Store data for visualizations AFTER displaying results
     if (typeof storeDataForViz === "function") {
-      console.log('Calling storeDataForViz with data...');
+      console.log("Calling storeDataForViz with data...");
       storeDataForViz(data, targets, X_test, y_test, y_pred);
     } else {
-      console.error('storeDataForViz function not found!');
+      console.error("storeDataForViz function not found!");
     }
   } catch (error) {
     console.error("Error loading dataset:", error);
@@ -349,22 +355,47 @@ function displayResults() {
 function handlePrediction(e) {
   e.preventDefault();
 
-  const features = FEATURE_NAMES.map((name) =>
-    parseFloat(document.getElementById(name).value)
-  );
-
-  const prediction = model.predict([features])[0];
-  const predictionDollars = prediction * 100000;
-
-  document.getElementById("priceValue").textContent =
-    predictionDollars.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+  try {
+    // Validate and sanitize inputs
+    const features = FEATURE_NAMES.map((name) => {
+      const value = document.getElementById(name).value;
+      const num = parseFloat(value);
+      
+      // Check for invalid numbers
+      if (isNaN(num) || !isFinite(num)) {
+        throw new Error(`Invalid input for ${name}: must be a valid number`);
+      }
+      
+      // Basic range validation
+      if (num < 0 && name !== 'Longitude') {
+        throw new Error(`Invalid input for ${name}: cannot be negative`);
+      }
+      
+      return num;
     });
 
-  const resultDiv = document.getElementById("predictionResult");
-  resultDiv.classList.remove("hidden");
-  resultDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const prediction = model.predict([features])[0];
+    
+    // Validate prediction output
+    if (isNaN(prediction) || !isFinite(prediction)) {
+      throw new Error('Model produced invalid prediction');
+    }
+    
+    const predictionDollars = prediction * 100000;
+
+    document.getElementById("priceValue").textContent =
+      predictionDollars.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+
+    const resultDiv = document.getElementById("predictionResult");
+    resultDiv.classList.remove("hidden");
+    resultDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  } catch (error) {
+    console.error('Prediction error:', error);
+    alert('Error: ' + error.message);
+  }
 }
 
 // Initialize

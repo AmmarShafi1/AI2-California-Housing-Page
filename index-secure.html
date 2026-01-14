@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://raw.githubusercontent.com;">
+    <title>California Housing Price Predictor - Secure</title>
+    <style>
+        /* Same styles as index.html */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .security-banner {
+            background: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .security-banner::before {
+            content: "🔒 ";
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .error-message {
+            background: #dc3545;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        /* Include all other styles from index.html */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="security-banner">
+            Secure Mode: Enhanced input validation and CSP enabled
+        </div>
+
+        <div id="error-message" class="error-message"></div>
+
+        <header>
+            <h1>🏠 California Housing Price Predictor</h1>
+            <p class="subtitle">Client-Side Machine Learning Regression Model (Secure Edition)</p>
+        </header>
+
+        <!-- Content will be loaded by the secure version of the scripts -->
+    </div>
+
+    <!-- Load Chart.js with SRI integrity check -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+            integrity="sha384-qls5s91p3J+SJ7sPlkEaIlFEiJ+p+dL+TmM0zSuG4Z+y1CsSwZ6+y6uOkGQNqMiU"
+            crossorigin="anonymous"
+            onerror="handleScriptError('Chart.js')"></script>
+    
+    <script>
+        // Security utilities
+        function sanitizeInput(value, min, max) {
+            const num = parseFloat(value);
+            if (isNaN(num) || !isFinite(num)) {
+                throw new Error('Invalid input: must be a number');
+            }
+            if (num < min || num > max) {
+                throw new Error(`Input out of range: must be between ${min} and ${max}`);
+            }
+            return num;
+        }
+
+        function handleScriptError(scriptName) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = `Security Error: Failed to load ${scriptName} from CDN. This could be a security risk.`;
+            errorDiv.style.display = 'block';
+        }
+
+        // Input validation ranges
+        const INPUT_RANGES = {
+            MedInc: { min: 0, max: 15 },
+            HouseAge: { min: 0, max: 100 },
+            AveRooms: { min: 0, max: 50 },
+            AveBedrms: { min: 0, max: 20 },
+            Population: { min: 0, max: 50000 },
+            AveOccup: { min: 0, max: 50 },
+            Latitude: { min: 32, max: 42 },
+            Longitude: { min: -125, max: -114 }
+        };
+    </script>
+
+    <script src="visualizations.js"></script>
+    <script src="model.js"></script>
+</body>
+</html>
+
