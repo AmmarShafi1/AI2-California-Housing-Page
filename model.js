@@ -227,6 +227,11 @@ async function loadAndTrain() {
         const y_pred = model.predict(X_test);
         const stats = calculateStats(y_test, y_pred);
         
+        // Store data for visualizations
+        if (typeof storeDataForViz === 'function') {
+            storeDataForViz(data, targets, X_test, y_test, y_pred);
+        }
+        
         modelStats = {
             r2_score: stats.r2.toFixed(4),
             rmse: stats.rmse.toFixed(4),
