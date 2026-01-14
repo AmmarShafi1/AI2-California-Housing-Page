@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>California Housing Price Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🏠 California Housing Price Predictor</h1>
+            <p class="subtitle">Machine Learning Regression Model</p>
+        </header>
+
+        <!-- Model Statistics Section -->
+        <section class="stats-section">
+            <h2>📊 Model Performance Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">R² Score</div>
+                    <div class="stat-value">{{ model_stats.r2_score }}</div>
+                    <div class="stat-desc">Model explains {{ (model_stats.r2_score * 100)|round(2) }}% of variance</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">RMSE</div>
+                    <div class="stat-value">{{ model_stats.rmse }}</div>
+                    <div class="stat-desc">Root Mean Squared Error</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">MAE</div>
+                    <div class="stat-value">{{ model_stats.mae }}</div>
+                    <div class="stat-desc">Mean Absolute Error</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Training Samples</div>
+                    <div class="stat-value">{{ model_stats.train_samples }}</div>
+                    <div class="stat-desc">Data points used for training</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Coefficients Section -->
+        <section class="coefficients-section">
+            <h2>🔢 Model Coefficients</h2>
+            <div class="coef-info">
+                <p><strong>Intercept:</strong> {{ model_stats.intercept }}</p>
+            </div>
+            <div class="coef-grid">
+                {% for name, coef in model_stats.coefficients.items() %}
+                <div class="coef-card {% if coef > 0 %}positive{% else %}negative{% endif %}">
+                    <div class="coef-name">{{ name }}</div>
+                    <div class="coef-value">{{ coef }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Price Prediction Widget -->
+        <section class="prediction-section">
+            <h2>💰 Housing Price Estimator</h2>
+            <div class="prediction-container">
+                <form id="predictionForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="MedInc">Median Income (tens of thousands)</label>
+                            <input type="number" id="MedInc" name="MedInc" step="0.01" value="3.5" required>
+                            <small>Example: 3.5 = $35,000</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="HouseAge">House Age (years)</label>
+                            <input type="number" id="HouseAge" name="HouseAge" step="0.1" value="25" required>
+                            <small>Average age of houses in block</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="AveRooms">Average Rooms</label>
+                            <input type="number" id="AveRooms" name="AveRooms" step="0.01" value="5.5" required>
+                            <small>Average number of rooms per house</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="AveBedrms">Average Bedrooms</label>
+                            <input type="number" id="AveBedrms" name="AveBedrms" step="0.01" value="1.2" required>
+                            <small>Average bedrooms per house</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="Population">Population</label>
+                            <input type="number" id="Population" name="Population" step="1" value="1500" required>
+                            <small>Block population</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="AveOccup">Average Occupancy</label>
+                            <input type="number" id="AveOccup" name="AveOccup" step="0.01" value="3.0" required>
+                            <small>Average household members</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="Latitude">Latitude</label>
+                            <input type="number" id="Latitude" name="Latitude" step="0.01" value="37.5" required>
+                            <small>Geographic coordinate</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="Longitude">Longitude</label>
+                            <input type="number" id="Longitude" name="Longitude" step="0.01" value="-122.0" required>
+                            <small>Geographic coordinate</small>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="predict-btn">Predict Price</button>
+                </form>
+                
+                <div id="predictionResult" class="prediction-result hidden">
+                    <h3>Predicted Housing Price</h3>
+                    <div class="price-display">
+                        <span class="currency">$</span>
+                        <span id="priceValue">0</span>
+                    </div>
+                    <p class="price-note">Estimated median house value for the area</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dataset Information -->
+        <section class="info-section">
+            <h2>ℹ️ About the Dataset</h2>
+            <div class="info-card">
+                <p>The <strong>California Housing Dataset</strong> is derived from the 1990 U.S. Census. 
+                It contains information about housing prices in California districts, with features like median income, 
+                house age, average rooms, and geographic location.</p>
+                
+                <h3>Features Explanation:</h3>
+                <ul>
+                    <li><strong>MedInc:</strong> Median income in block group (in tens of thousands)</li>
+                    <li><strong>HouseAge:</strong> Median house age in block group</li>
+                    <li><strong>AveRooms:</strong> Average number of rooms per household</li>
+                    <li><strong>AveBedrms:</strong> Average number of bedrooms per household</li>
+                    <li><strong>Population:</strong> Block group population</li>
+                    <li><strong>AveOccup:</strong> Average number of household members</li>
+                    <li><strong>Latitude:</strong> Block group latitude</li>
+                    <li><strong>Longitude:</strong> Block group longitude</li>
+                </ul>
+                
+                <p class="note"><strong>Target:</strong> Median house value (in hundreds of thousands of dollars)</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>Built with Python, Flask, and scikit-learn | Linear Regression Model</p>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = {};
+            
+            formData.forEach((value, key) => {
+                data[key] = parseFloat(value);
+            });
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const resultDiv = document.getElementById('predictionResult');
+                    const priceValue = document.getElementById('priceValue');
+                    
+                    priceValue.textContent = result.prediction_dollars.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                    
+                    resultDiv.classList.remove('hidden');
+                    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    alert('Prediction error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error making prediction: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
+
